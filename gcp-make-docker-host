@@ -92,7 +92,6 @@ else
 
     tar cz -C $tls_dir . > $HOST-tls.tgz
     ( >&2 echo "tls files saved to $HOST-tls.tgz.  you might save these in drive." )
-		rm -rf $tls_dir
 fi
 
 # if the disk doesn't exist create it
@@ -186,6 +185,7 @@ for file in {ca,cert,key}.pem; do
     cp $tls_dir/$file $HOME/.docker/
 done
 
+rm -rf $tls_dir
 
 ( >&2 echo "to run docker commands on this server, execute:" )
 ( >&2 echo "export DOCKER_HOST=tcp://$IP:2376 DOCKER_TLS_VERIFY=1" )
