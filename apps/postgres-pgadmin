@@ -14,10 +14,12 @@ fi
 
 
 if [[ -z $(docker network list --filter name=postgres -q) ]]; then docker network create postgres; fi
-    
-curl -sL bit.ly/mlgrm-traefiker |
-    HOSTNAME=pgadmin \
-    bash -s -- run -d \
+
+if docker container inspect pgadmin 2>&1 > /dev/null; then
+    >&2 echo "container exists, deleting"
+    docker rm -f pgadmin
+fi
+HOSTNAME=pgadmin ./traefiker -s -- run -d \
     --name pgadmin \
     -v /mnt/disks/data/pgadmin:/var/lib/pgadmin \
     -e PGADMIN_DEFAULT_EMAIL=$EMAIL \
@@ -25,6 +27,10 @@ curl -sL bit.ly/mlgrm-traefiker |
     --network postgres \
     dpage/pgadmin4
 
+if docker container inspect postgres 2>&1 > /dev/null; then
+    >&2 echo "container exists, deleting"
+    docker rm -f postgres
+fi
 docker run -d \
     -v /mnt/disks/data/postgresql:/var/lib/postgresql \
     --name postgres \

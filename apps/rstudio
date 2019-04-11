@@ -8,9 +8,12 @@ USER=${USER:-$USER}
 
 if [[ -n $(docker network list --filter name=postgres -q) ]]; then PG_NETWORK="--network postgres"; fi
 
-curl -sL bit.ly/mlgrm-traefiker | 
-    HOSTNAME=rstudio:shiny PORT=8787:3838 SERVICE=rstudio:shiny \
-    bash -s -- run -d \
+if docker container inspect rstudio 2>&1 > /dev/null; then
+    >&2 echo "container exists, deleting"
+    docker rm -f rstudio
+fi
+HOSTNAME=rstudio:shiny PORT=8787:3838 SERVICE=rstudio:shiny \
+    ./traefiker -s -- run -d \
     -v $DATA/home:/home \
 		-v $DATA/R:/usr/local/lib/R \
     -e USER=$USER \
@@ -20,7 +23,7 @@ curl -sL bit.ly/mlgrm-traefiker |
     --name rstudio \
     --hostname rstudio \
     $PG_NETWORK \
-    rocker/tidyverse
+    mlgrm/tidyverse
     
     
     

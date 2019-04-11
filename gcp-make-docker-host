@@ -159,7 +159,11 @@ if [[ $OS_TYPE == "cos" ]]; then
     #gcloud compute ssh $HOST --command "sudo mount /dev/disk/by-id/google-data /var/lib" -- -n
 elif [[ $OS_TYPE == "ubuntu" ]]; then
 		script=$(mktemp --suffix=.sh)
-    curl -sL bit.ly/mlgrm-ubuntu-docker-first-boot | envsubst > $script
+		if [[ -s ubuntu-docker-first-boot.sh ]]; then 
+        cat ubuntu-docker-first-boot.sh | envsubst > $script
+    else
+        curl -sL bit.ly/mlgrm-ubuntu-docker-first-boot | envsubst > $script
+    fi
     gcloud -q --verbosity $DEBUG compute instances create $HOST \
         --image-project ubuntu-os-cloud \
         --image-family ubuntu-1804-lts \
