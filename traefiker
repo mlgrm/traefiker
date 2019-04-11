@@ -9,6 +9,7 @@
 # HOSTNAME=host [...] ./traefiker <args> <image>
 # 
 # you must use the --name parameter.
+set -e
 
 IFS=":" read -r -a svcs <<< ${SERVICE:-basic}
 IFS=":" read -r -a ports <<< ${PORT:-80}
