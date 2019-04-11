@@ -30,7 +30,7 @@ apt-get update && apt-get upgrade -y
 
 # install docker
 addgroup --system docker
-id -u "$USER" &>/dev/null || useradd -D "$USER"
+id -u "$USER" &>/dev/null || useradd "$USER"
 adduser "$USER" docker
 apt-get install -y \
     apt-transport-https \
