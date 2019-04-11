@@ -18,7 +18,7 @@ IFS=":" read -r -a protocols <<< ${PROTOCOL:-http}
 # if traefik isn't running, start it
 if ! docker container inspect traefik > /dev/null 2>&1; then curl -sL bit.ly/mlgrm-traefik-setup | bash; fi
 
-[[ $1 != "run" ]] && >&2 echo "command $1 doesn't make sense for traefiker" && exit 1
+#[[ $1 != "run" ]] && >&2 echo "command $1 doesn't make sense for traefiker" && exit 1
 
 [[ ${#ports[@]} -ne ${#svcs[@]} ||
     ${#hosts[@]} -ne ${#svcs[@]} ]] && 

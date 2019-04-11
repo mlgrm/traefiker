@@ -13,17 +13,17 @@ if docker container inspect rstudio 2>&1 > /dev/null; then
     docker rm -f rstudio
 fi
 HOSTNAME=rstudio:shiny PORT=8787:3838 SERVICE=rstudio:shiny \
-    ./traefiker -s -- run -d \
+    ./traefiker -d \
     -v $DATA/home:/home \
-		-v $DATA/R:/usr/local/lib/R \
     -e USER=$USER \
     -e PASSWORD=$PASSWD \
     -e ROOT=TRUE \
-    -e ADD=shiny \
     --name rstudio \
     --hostname rstudio \
+    -e ADD=shiny \
     $PG_NETWORK \
     mlgrm/tidyverse
     
+#		-v $DATA/R:/usr/local/lib/R \
     
     
