@@ -16,14 +16,30 @@ if [[ -z $res ]]; then
     HOST=$HOST IP_NAME=$IP_NAME BOOT_DISK_SIZE=$BOOT_DISK_SIZE ./gcp-make-docker-host
 fi
 
-# get the docker remote function if we don't have it
-if [[ $(test -t docker_host) != "function" ]]; then
-    fun=$(curl -sL bit.ly/mlgrm-docker-remote)
-    echo "$fun" | tail -n +3 >> $HOME/.bashrc
-    eval "$fun"
-fi
+# add the http and https tags
+gcloud compute instances add-tags --tags http-server,https-server "$HOST" &> /dev/null
 
-docker_host $HOST
+
+# # get the docker remote function if we don't have it
+# if [[ $(test -t docker_host) != "function" ]]; then
+#     fun=$(curl -sL bit.ly/mlgrm-docker-remote)
+#     echo "$fun" | tail -n +3 >> $HOME/.bashrc
+#     eval "$fun"
+# fi
+docker-host () {
+    if [[ -n $1 ]]; then
+        export DOCKER_HOST="tcp://$(gcloud compute instances describe $1 \
+            --format 'value(networkInterfaces[0].accessConfigs[0].natIP)'):2376" DOCKER_TLS_VERIFY=1
+        if ! [[ -d $HOME/.docker && $(ls $HOME/.docker/{ca,cert,key}.pem | wc -l) -eq 3 ]]; then
+            >&2 echo "need to get the pem files and put them in ~/.docker.  (maybe saved in drive as $1-tls.tgz?)"
+        fi
+    else
+        unset DOCKER_HOST DOCKER_TLS_VERIFY
+    fi
+}
+
+docker-host $HOST
+
 IP=$(sed -E 's/tcp:\/\/([0-9.]+).*/\1/' <<< $DOCKER_HOST)
 
 # copy files to host
@@ -35,10 +51,10 @@ gcloud compute ssh $HOST --command "sudo mkdir -p $DATA/traefik" -- -n
 
 export DOMAIN ACME_EMAIL
 
-# get our traefik.toml template and substitute our DOMAIN and ACME_EMAIL
-curl -sL http://bit.ly/2YbJXCK |
-    envsubst |
-    gcloud compute ssh $HOST --command "sudo tee $DATA/traefik/traefik.toml > /dev/null"
+# if it doesn't already exist, get our traefik.toml template and substitute our DOMAIN and ACME_EMAIL
+[[ -s "traefik.toml" ]] || curl -sL http://bit.ly/2YbJXCK > traefik.toml
+envsubst < traefik.toml | \
+					 gcloud compute ssh $HOST --command "sudo tee $DATA/traefik/traefik.toml > /dev/null"
 
 # initialize the let's encrypt secrets file if they don't exist
 gcloud compute ssh $HOST --command "[[ -f $DATA/traefik/acme.json ]] || 

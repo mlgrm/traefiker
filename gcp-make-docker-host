@@ -10,7 +10,7 @@ IP_NAME=${IP_NAME:-$HOST}
 BOOT_DISK_SIZE=${BOOT_DISK_SIZE:-10GB}
 DATA_DISK_NAME=${DATA_DISK_NAME:-$HOST-data}
 DATA_DISK_SIZE=${DATA_DISK_SIZE:-200GB}
-TLS_ARCHIVE=${TLS_ARCHIVE:-"$HOST-tls.tgz"}
+TLS_ARCHIVE=${TLS_ARCHIVE:-"$HOME/$HOST-tls.tgz"}
 DEBUG=${DEBUG:-error}
 OS_TYPE=${OS_TYPE:-"ubuntu"}
 
@@ -90,7 +90,7 @@ else
     tls_dir=$(tls_setup 2> /dev/null)
     tar c -C $tls_dir . | tar x -C $HOME/.docker
 
-    tar cz -C $tls_dir . > $HOST-tls.tgz
+    tar cz -C $tls_dir . > $TLS_ARCHIVE
     ( >&2 echo "tls files saved to $HOST-tls.tgz.  you might save these in drive." )
 fi
 
