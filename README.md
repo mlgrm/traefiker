@@ -7,8 +7,6 @@ and starts the container
 
 all configuration is currently by environment variables, most of which have reasonable defaults.  required variables are:
 
-`DOMAIN` the top level domain under which all traefik apps will be hosted. (all must point to the docker host's external ip).
-
-`HOST` the name of the gcp host.  the default region/zone must be specified ahead of time with `gcloud init` or `gcloud config set compute/zone`
-
-`EMAIL` let's encrypt requires an email.  this is also used as the default login by apps 
+* `DOMAIN` the top level domain under which all traefik apps will be hosted. (all must point to the docker host's external ip).
+* `HOST` the name of the gcp host.  the default region/zone must be specified ahead of time with `gcloud init` or `gcloud config set compute/zone`
+* `EMAIL` let's encrypt requires an email.  this is also used as the default login by apps 
