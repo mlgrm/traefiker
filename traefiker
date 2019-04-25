@@ -11,6 +11,8 @@
 # you must use the --name parameter.
 set -e
 
+[[ -z "$DOMAIN" ]] && >&2 echo "DOMAIN must be defined" && exit 1
+
 IFS=":" read -r -a svcs <<< ${SERVICE:-basic}
 IFS=":" read -r -a ports <<< ${PORT:-80}
 IFS=":" read -r -a hosts <<< $HOSTNAME

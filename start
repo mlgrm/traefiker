@@ -17,7 +17,7 @@ if [[ -z $res ]]; then
 fi
 
 # add the http and https tags
-gcloud compute instances add-tags --tags http-server,https-server "$HOST" &> /dev/null
+gcloud compute instances add-tags --tags http-server,https-server "$HOST" &> /dev/null || >&2 echo "http/https tags already set"
 
 
 # # get the docker remote function if we don't have it
