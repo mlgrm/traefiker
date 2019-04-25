@@ -5,14 +5,14 @@ set -e
 
 ACME_EMAIL=${ACME_EMAIL:-$EMAIL}
 DATA=${DATA:-/mnt/disks/data}
-[[ -z $DOMAIN || -z $HOST || -z $ACME_EMAIL ]] && echo 'all of DOMAIN, HOST, and ACME_EMAIL must be defined' && exit 1 
+[[ -z $DOMAIN || -z $HOST || -z $ACME_EMAIL ]] && echo 'all of DOMAIN, HOST, and ACME_EMAIL must be defined' && exit 1
 
 #set -e
 
 # if the docker host doesn't exist, create it.
 res=$(gcloud compute instances list --filter "name~^$HOST$" 2> /dev/null)
 if grep "TERMINATED$" <<< $res; then gcloud compute instances start $HOST; fi
-if [[ -z $res ]]; then  
+if [[ -z $res ]]; then
     HOST=$HOST IP_NAME=$IP_NAME BOOT_DISK_SIZE=$BOOT_DISK_SIZE ./gcp-make-docker-host
 fi
 
@@ -47,6 +47,13 @@ IP=$(sed -E 's/tcp:\/\/([0-9.]+).*/\1/' <<< $DOCKER_HOST)
 # wait for ssh to come up
 >&2 echo "waiting for ssh..."
 until netcat -z $IP 22; do sleep 1; done
+
+# wait for data disk to be mounted
+>&2 echo "waiting for data disk..."
+until gcloud compute ssh cosima --command mount | grep -q '^/dev/sd[b-z] on /mnt/disks/data'; do
+    sleep 5
+done
+
 gcloud compute ssh $HOST --command "sudo mkdir -p $DATA/traefik" -- -n
 
 export DOMAIN ACME_EMAIL
@@ -57,12 +64,12 @@ envsubst < traefik.toml | \
 					 gcloud compute ssh $HOST --command "sudo tee $DATA/traefik/traefik.toml > /dev/null"
 
 # initialize the let's encrypt secrets file if they don't exist
-gcloud compute ssh $HOST --command "[[ -f $DATA/traefik/acme.json ]] || 
+gcloud compute ssh $HOST --command "[[ -f $DATA/traefik/acme.json ]] ||
     sudo touch $DATA/traefik/acme.json && sudo chmod 600 $DATA/traefik/acme.json" -- -n
 
 # wait for docker to be available
 >&2 echo "waiting for docker..."
-until netcat -z $IP 2376; do sleep 5; done
+until netcat -z $IP 2376; do sleep 10; done
 
 if [[ -z $(docker network list --filter name=traefik -q) ]]; then docker network create traefik; fi
 

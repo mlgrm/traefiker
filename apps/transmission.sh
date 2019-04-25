@@ -2,7 +2,7 @@
 export HOSTNAME=transmission PORT=9091 
 PIA_GW=${PIA_GW:-"Spain"}
 [[ -z "$PASSWD" ]] && >&2 echo "PASSWD must be set" && exit 1
-./traefiker --cap-add=NET_ADMIN \
+./traefiker.sh --cap-add=NET_ADMIN \
               -v /mnt/disks/data/tranmission:/data \
               -v /etc/localtime:/etc/localtime:ro \
               -e CREATE_TUN_DEVICE=true \

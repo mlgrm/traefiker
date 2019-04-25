@@ -19,7 +19,7 @@ if docker container inspect pgadmin &> /dev/null; then
     >&2 echo "container exists, deleting"
     docker rm -f pgadmin
 fi
-HOSTNAME=pgadmin ./traefiker -d \
+HOSTNAME=pgadmin ./traefiker.sh -d \
     --name pgadmin \
     -v /mnt/disks/data/pgadmin:/var/lib/pgadmin \
     -e PGADMIN_DEFAULT_EMAIL=$EMAIL \

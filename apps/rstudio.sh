@@ -13,7 +13,7 @@ if docker container inspect rstudio 2>&1 > /dev/null; then
     docker rm -f rstudio
 fi
 HOSTNAME=rstudio:shiny PORT=8787:3838 SERVICE=rstudio:shiny \
-    ./traefiker -d \
+    ./traefiker.sh -d \
     -v $DATA/home:/home \
     -e USER=$USER \
     -e PASSWORD=$PASSWD \
