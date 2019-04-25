@@ -66,7 +66,7 @@ until netcat -z $IP 2376; do sleep 5; done
 
 if [[ -z $(docker network list --filter name=traefik -q) ]]; then docker network create traefik; fi
 
-if docker container inspect traefik 2>&1 > /dev/null; then
+if docker container inspect traefik > /dev/null 2>&1 ; then
     >&2 echo "container exists, deleting"
     docker rm -f traefik
 fi
